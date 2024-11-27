@@ -22,10 +22,21 @@ export function showStudentSearchForm() {
 function searchStudentsByName(name) {
     const students = getStudents();
     const courses = getCourses();
-    const filteredStudents = students.filter(student => 
-        student.name.toLowerCase().includes(name.toLowerCase()) || 
-        student.surname.toLowerCase().includes(name.toLowerCase())
-    );
+
+    const searchTerms = name.toLowerCase().split(/\s+/);
+    
+    const filteredStudents = students.filter(student => {
+        const fullName = `${student.name} ${student.surname}`.toLowerCase();
+        
+        let allTermsFound = true;
+        for(let i = 0; i < searchTerms.length; i++) {
+            if(!fullName.includes(searchTerms[i])) {
+                allTermsFound = false;
+                break;
+            }
+        }
+        return allTermsFound;
+    });
 
     let content = '<h2>Search Results</h2>';
     
