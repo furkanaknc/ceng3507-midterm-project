@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Student Management</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+          <li><button id="show-courses-btn">Courses</button></li>
+          <li><button id="show-students-btn">Students</button></li>
+          <li><button id="add-course-btn">Add Course</button></li>
+          <li><button id="add-student-btn">Add Student</button></li>
+          <li>
+            <button id="add-student-to-course-btn">
+              Add Student to Course
+            </button>
+          </li>
+          <li>
+            <button id="delete-student-from-course-btn">
+              Delete Student from Course
+            </button>
+          </li>
+          <li><button id="search-student-btn">Search Students</button></li>
+        </ul>     
+      </nav>
+
+      <main class="content">
+        <h1>Student Management System</h1>
+        <div id="dynamic-content"></div>
+      </main>
+    </div>
+    <script src="../main.js" type="module" defer></script>
+  </body>
+</html>
