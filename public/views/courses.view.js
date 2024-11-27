@@ -1,4 +1,4 @@
-import { getCourses, deleteCourse} from "../../utils/course.util.js";
+import { getCourses, deleteCourse, deleteStudentFromCourse} from "../../utils/course.util.js";
 import { getStudentById } from "../../utils/student.util.js";
 import { calculateGrade,calculateGPA,computeMean } from "../../utils/calculate.util.js";
 export function showCourses() {
@@ -38,6 +38,11 @@ export function showCourses() {
                                 Student: ${studentDetails.name} ${studentDetails.surname}, 
                                 GPA: ${gpa}, 
                                 Grade: ${letterGrade}
+                                <button class="form-btn delete-student-btn" 
+                                    data-student-id="${student.id}"
+                                    data-course-name="${course.name}">
+                                    Delete student
+                                </button>
                             </li>
                         `;
                     }
@@ -85,6 +90,22 @@ export function showCourses() {
         button.addEventListener('click', (e) => {
             const courseName = e.target.dataset.course;
             showDetailedStatistics(courseName);
+        });
+    });
+
+    document.querySelectorAll('.delete-student-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const studentId = e.target.dataset.studentId;
+            const courseName = e.target.dataset.courseName;
+            
+            if (confirm(`Are you sure you want to remove this student from ${courseName}?`)) {
+                const success = deleteStudentFromCourse(studentId, courseName);
+                if (success) {
+                    showCourses(); 
+                } else {
+                    alert('Failed to remove student from course.');
+                }
+            }
         });
     });
 }

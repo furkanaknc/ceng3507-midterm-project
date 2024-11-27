@@ -1,6 +1,7 @@
 import { get, save } from "../storage/local-storage.js";
 import { dataOfCourses } from "../storage/dummy-data/courses.js";
 import { computeMean, calculateGrade } from "./calculate.util.js";
+import { STUDENTS_KEY, getStudents } from "./student.util.js";
 
 export const COURSES_KEY = 'courses';
 
@@ -52,15 +53,23 @@ export function addStudentToCourse(studentId, courseName, midterm, final) {
 
 export function deleteStudentFromCourse(studentId, courseName) {
     const courses = getCourses();
+    const students = getStudents();
+    
     const course = courses.find(c => c.name === courseName);
-
     if (!course) return false;
 
     const studentIndex = course.students.findIndex(s => s.id === studentId);
     if (studentIndex !== -1) {
         course.students.splice(studentIndex, 1);
-        save(COURSES_KEY, courses);
-        return true;
+        
+        const student = students.find(s => s.id === studentId);
+        if (student) {
+            student.courses = student.courses.filter(c => c.courseName !== courseName);
+            
+            save(COURSES_KEY, courses);
+            save(STUDENTS_KEY, students);
+            return true;
+        }
     }
     return false;
 }

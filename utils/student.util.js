@@ -3,7 +3,7 @@ import { dataOfStudents } from "../storage/dummy-data/students.js";
 import { COURSES_KEY, getCourses } from "./course.util.js";
 import { computeMean, calculateGrade } from "./calculate.util.js";
 
-const STUDENTS_KEY = 'students';
+export const STUDENTS_KEY = 'students';
 
 export function initStudents() {
     const storedStudents = get(STUDENTS_KEY);
