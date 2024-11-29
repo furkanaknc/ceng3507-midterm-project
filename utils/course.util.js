@@ -87,7 +87,22 @@ export function deleteStudentFromCourse(studentId, courseName) {
 
 export function deleteCourse(courseName) {
     const courses = getCourses();
+    const students = getStudents();
+    
+    const affectedStudents = students.filter(student => 
+        student.courses.some(course => course.courseName === courseName)
+    );
+
+    affectedStudents.forEach(student => {
+        student.courses = student.courses.filter(course => 
+            course.courseName !== courseName
+        );
+    });
+
     const updatedCourses = courses.filter(course => course.name !== courseName);
+
     save(COURSES_KEY, updatedCourses);
+    save(STUDENTS_KEY, students);
+
     return true;
 }
