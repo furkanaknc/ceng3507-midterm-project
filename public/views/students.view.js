@@ -1,4 +1,4 @@
-import { calculateGrade,computeMean, calculateGPA } from "../../utils/calculate.util.js";
+import { calculateGrade,computeMean, calculateGPA, calculateTotalGPA} from "../../utils/calculate.util.js";
 import { getCourses } from "../../utils/course.util.js";
 import { getStudents, updateGrades, deleteStudent, updateStudent } from "../../utils/student.util.js";
 
@@ -12,9 +12,11 @@ export function showStudents() {
         content += '<p>No students available. Add a student to get started.</p>';
     } else {
         students.forEach(student => {
+            const totalGPA = calculateTotalGPA(student);
             content += `
                 <div class="student-container">
                      <h3>${student.name} ${student.surname} (ID: ${student.id})</h3>
+                     <p>Total GPA: ${totalGPA}</p>
                     <div class="student-actions">
                         <button class="form-btn update-student-btn" 
                             data-id="${student.id}"
@@ -80,6 +82,18 @@ export function showStudents() {
                 deleteStudent(studentId);
                 showStudents();
             }
+        });
+    });
+
+    document.querySelectorAll('.update-grade-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            handleUpdateGrades(
+                li.dataset.studentId,
+                li.dataset.courseName,
+                Number(li.dataset.midterm),
+                Number(li.dataset.final)
+            );
         });
     });
 }

@@ -1,6 +1,7 @@
 import { getCourses, deleteCourse, deleteStudentFromCourse} from "../../utils/course.util.js";
 import { getStudentById } from "../../utils/student.util.js";
-import { calculateGrade,calculateGPA,computeMean } from "../../utils/calculate.util.js";
+import { calculateGrade,calculateGPA,computeMean, calculateTotalGPA } from "../../utils/calculate.util.js";
+
 export function showCourses() {
     const courses = getCourses();
     let content = '<h2>Courses</h2>';
@@ -20,8 +21,7 @@ export function showCourses() {
                         <button class="form-btn show-detailed-stats-btn" data-course="${course.name}">Detailed Statistics</button>
                     </div>
                     <div class="students-list">
-                        <h4>Enrolled Students:</h4>
-            `;
+                        <h4>Enrolled Students:</h4>`;
 
             if (course.students.length === 0) {
                 content += '<p>No students enrolled in this course.</p>';
@@ -30,21 +30,24 @@ export function showCourses() {
                 course.students.forEach(student => {
                     const studentDetails = getStudentById(student.id);
                     if (studentDetails) {
-                        const { gpa, letterGrade } = calculateStudentCourseGPA(studentDetails, course.name, course.gradingScale);
-               
+                        const studentCourse = studentDetails.courses.find(c => c.courseName === course.name);
+                        const mean = computeMean(studentCourse.midtermScore, studentCourse.finalScore);
+                        const letterGrade = calculateGrade(mean, course.gradingScale);
+                        
                         content += `
                             <li>
                                 Student ID: ${student.id}, 
                                 Student: ${studentDetails.name} ${studentDetails.surname}, 
-                                GPA: ${gpa}, 
+                                Midterm: ${studentCourse.midtermScore}, 
+                                Final: ${studentCourse.finalScore}, 
+                                Mean: ${mean}, 
                                 Grade: ${letterGrade}
                                 <button class="form-btn delete-student-btn" 
                                     data-student-id="${student.id}"
                                     data-course-name="${course.name}">
                                     Delete student
                                 </button>
-                            </li>
-                        `;
+                            </li>`;
                     }
                 });
                 content += '</ul>';
@@ -57,6 +60,7 @@ export function showCourses() {
     }
 
     document.getElementById('dynamic-content').innerHTML = content;
+
 
     document.querySelectorAll('.delete-course-btn').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -101,7 +105,7 @@ export function showCourses() {
             if (confirm(`Are you sure you want to remove this student from ${courseName}?`)) {
                 const success = deleteStudentFromCourse(studentId, courseName);
                 if (success) {
-                    showCourses(); 
+                    showCourses();
                 } else {
                     alert('Failed to remove student from course.');
                 }
@@ -125,16 +129,13 @@ export function showPassedStudents(courseName) {
             passedStudents.forEach(student => {
                 const studentDetails = getStudentById(student.id);
                 if (studentDetails) {
-                    const { gpa, letterGrade } = calculateStudentCourseGPA(studentDetails, course.name, course.gradingScale);
-       
+                    const totalGPA = calculateTotalGPA(studentDetails);
                     content += `
                         <li>
                             Student ID: ${student.id}, 
                             Student: ${studentDetails.name} ${studentDetails.surname}, 
-                            GPA: ${gpa}, 
-                            Grade: ${letterGrade}
-                        </li>
-                    `;
+                            Total GPA: ${totalGPA}
+                        </li>`;
                 }
             });
             content += '</ul>';
@@ -156,16 +157,13 @@ export function showFailedStudents(courseName) {
             failedStudents.forEach(student => {
                 const studentDetails = getStudentById(student.id);
                 if (studentDetails) {
-                    const { gpa, letterGrade } = calculateStudentCourseGPA(studentDetails, course.name, course.gradingScale);
-      
+                    const totalGPA = calculateTotalGPA(studentDetails);
                     content += `
                         <li>
                             Student ID: ${student.id}, 
                             Student: ${studentDetails.name} ${studentDetails.surname}, 
-                            GPA: ${gpa}, 
-                            Grade: ${letterGrade}
-                        </li>
-                    `;
+                            Total GPA: ${totalGPA}
+                        </li>`;
                 }
             });
             content += '</ul>';
@@ -190,15 +188,4 @@ export function showDetailedStatistics(courseName) {
 
         document.getElementById(`details-${course.name.replace(/\s+/g, '-')}`).innerHTML = content;
     }
-}
-
-function calculateStudentCourseGPA(studentDetails, courseName, gradingScale) {
-    const studentCourse = studentDetails.courses.find(c => c.courseName === courseName);
-    if (!studentCourse) return { gpa: 'N/A', letterGrade: 'N/A' };
-    
-    const mean = computeMean(studentCourse.midtermScore, studentCourse.finalScore);
-    const letterGrade = calculateGrade(mean, gradingScale);
-    const gpa = calculateGPA(letterGrade);
-    
-    return { gpa, letterGrade };
 }

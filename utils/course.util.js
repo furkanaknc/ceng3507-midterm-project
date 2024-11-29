@@ -32,9 +32,12 @@ export function addNewCourse(course) {
 
 export function addStudentToCourse(studentId, courseName, midterm, final) {
     const courses = getCourses();
+    const students = getStudents(); 
+    
     const course = courses.find(c => c.name === courseName);
+    const student = students.find(s => s.id === studentId);
 
-    if (!course) return false;
+    if (!course || !student) return false;
 
     const gpa = computeMean(midterm, final);
     const letterGrade = calculateGrade(gpa, course.gradingScale);
@@ -45,7 +48,15 @@ export function addStudentToCourse(studentId, courseName, midterm, final) {
             GPA: gpa,
             letterGrade: letterGrade
         });
+        
+        student.courses.push({
+            courseName: courseName,
+            midtermScore: midterm,
+            finalScore: final
+        });
+
         save(COURSES_KEY, courses);
+        save(STUDENTS_KEY, students);
         return true;
     }
     return false;
