@@ -179,7 +179,7 @@ export function showDetailedStatistics(courseName) {
         const passedStudents = course.students.filter(student => student.letterGrade !== 'F');
         const failedStudents = course.students.filter(student => student.letterGrade === 'F');
         const totalStudents = course.students.length;
-        const meanScore = course.students.reduce((sum, student) => sum + parseFloat(student.GPA), 0) / totalStudents;
+        const meanScore = course.students.reduce((sum, student) => sum + parseFloat(student.mean), 0) / totalStudents;
 
         let content = `<h4>Detailed Statistics for ${course.name}</h4>`;
         content += `<p>Number of Passed Students: ${passedStudents.length}</p>`;
