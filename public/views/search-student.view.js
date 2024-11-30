@@ -1,21 +1,33 @@
-import { getCourses} from "../../utils/course.util.js";
+import { calculateGrade, computeMean, calculateGPA, calculateTotalGPA } from "../../utils/calculate.util.js";
+import { getCourses } from "../../utils/course.util.js";
 import { getStudents } from "../../utils/student.util.js";
 
 export function showStudentSearchForm() {
     document.getElementById('dynamic-content').innerHTML = `
         <h2>Search Students</h2>
-        <form id="search-form">
-            <div class="form-group">
-                <input type="text" id="search-input" placeholder="Search by student name" required>
-            </div>
-            <button class="form-btn" type="submit">Search</button>
-        </form>
-    `;
+        <div class="form-group">
+            <input type="text" id="search-input" placeholder="Enter student name...">
+        </div>`;
 
-    document.getElementById('search-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const searchInput = document.getElementById('search-input').value;
-        searchStudentsByName(searchInput);
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        if (e.target.value.trim()) {
+            searchStudentsByName(e.target.value);
+        } else {
+            document.getElementById('dynamic-content').innerHTML = `
+                <h2>Search Students</h2>
+                <div class="form-group">
+                    <input type="text" id="search-input" placeholder="Enter student name...">
+                </div>`;
+        }
+    });
+    document.getElementById('dynamic-content').innerHTML += `
+    <button id="search-button" class="form-btn btn">Search</button>`;
+
+    document.getElementById('search-button').addEventListener('click', () => {
+        const searchValue = document.getElementById('search-input').value;
+        if (searchValue.trim()) {
+            searchStudentsByName(searchValue);
+        }
     });
 }
 
@@ -24,29 +36,23 @@ function searchStudentsByName(name) {
     const courses = getCourses();
 
     const searchTerms = name.toLowerCase().split(/\s+/);
-    
+
     const filteredStudents = students.filter(student => {
         const fullName = `${student.name} ${student.surname}`.toLowerCase();
-        
-        let allTermsFound = true;
-        for(let i = 0; i < searchTerms.length; i++) {
-            if(!fullName.includes(searchTerms[i])) {
-                allTermsFound = false;
-                break;
-            }
-        }
-        return allTermsFound;
+        return searchTerms.every(term => fullName.includes(term));
     });
 
     let content = '<h2>Search Results</h2>';
-    
+
     if (filteredStudents.length === 0) {
         content += '<p>No students found.</p>';
     } else {
         filteredStudents.forEach(student => {
+            const totalGPA = calculateTotalGPA(student);
             content += `
                 <div class="student-container">
                     <h3>${student.name} ${student.surname} (ID: ${student.id})</h3>
+                    <p>Total GPA: ${totalGPA}</p>
                     <div class="courses-list">
                         <h4>Enrolled Courses:</h4>`;
 
@@ -57,14 +63,17 @@ function searchStudentsByName(name) {
                 student.courses.forEach(course => {
                     const courseDetails = courses.find(c => c.name === course.courseName);
                     if (courseDetails) {
-                        const studentInCourse = courseDetails.students.find(s => s.id === student.id);
+                        const mean = computeMean(course.midtermScore, course.finalScore);
+                        const letterGrade = calculateGrade(mean, courseDetails.gradingScale);
+                        const gpa = calculateGPA(letterGrade);
+
                         content += `
                             <li>
                                 ${course.courseName} - 
                                 Midterm: ${course.midtermScore}, 
                                 Final: ${course.finalScore}, 
-                                GPA: ${studentInCourse?.GPA || 'N/A'}, 
-                                Grade: ${studentInCourse?.letterGrade || 'N/A'}
+                                GPA: ${gpa}, 
+                                Grade: ${letterGrade}
                             </li>`;
                     }
                 });
@@ -73,6 +82,6 @@ function searchStudentsByName(name) {
             content += '</div></div><hr>';
         });
     }
-    
+
     document.getElementById('dynamic-content').innerHTML = content;
 }

@@ -88,7 +88,7 @@ export function showStudents() {
     document.querySelectorAll('.update-grade-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const li = e.target.closest('li');
-            handleUpdateGrades(
+            updateGrades(
                 li.dataset.studentId,
                 li.dataset.courseName,
                 Number(li.dataset.midterm),
