@@ -1,41 +1,19 @@
-import { get, save } from "../storage/local-storage.js";
 import { dataOfCourses } from "../storage/dummy-data/courses.js";
 import { computeMean, calculateGrade } from "./calculate.util.js";
-import { STUDENTS_KEY, getStudents } from "./student.util.js";
+import { dataOfStudents } from "../storage/dummy-data/students.js";
 
-export const COURSES_KEY = 'courses';
-
-export function initCourses() {
-    const storedCourses = get(COURSES_KEY);
-    const combinedCourses = [...dataOfCourses.courses];
-
-    storedCourses.forEach(storedCourse => {
-        if (!combinedCourses.some(c => c.name === storedCourse.name)) {
-            combinedCourses.push(storedCourse);
-        }
-    });
-
-    save(COURSES_KEY, combinedCourses);
-    return combinedCourses;
-}
 
 export function getCourses() {
-    const storedCourses = get(COURSES_KEY);
-    return storedCourses.length > 0 ? storedCourses : dataOfCourses.courses;
+    return dataOfCourses.courses;
 }
 
 export function addNewCourse(course) {
     dataOfCourses.courses.push(course);
-    save(COURSES_KEY, dataOfCourses.courses);
 }
 
-
 export function addStudentToCourse(studentId, courseName, midterm, final) {
-    const courses = getCourses();
-    const students = getStudents(); 
-    
-    const course = courses.find(c => c.name === courseName);
-    const student = students.find(s => s.id === studentId);
+    const course = dataOfCourses.courses.find(c => c.name === courseName);
+    const student = dataOfStudents.students.find(s => s.id === studentId);
 
     if (!course || !student) return false;
 
@@ -54,31 +32,22 @@ export function addStudentToCourse(studentId, courseName, midterm, final) {
             midtermScore: midterm,
             finalScore: final
         });
-
-        save(COURSES_KEY, courses);
-        save(STUDENTS_KEY, students);
         return true;
     }
     return false;
 }
 
 export function deleteStudentFromCourse(studentId, courseName) {
-    const courses = getCourses();
-    const students = getStudents();
-    
-    const course = courses.find(c => c.name === courseName);
+    const course = dataOfCourses.courses.find(c => c.name === courseName);
     if (!course) return false;
 
     const studentIndex = course.students.findIndex(s => s.id === studentId);
     if (studentIndex !== -1) {
         course.students.splice(studentIndex, 1);
         
-        const student = students.find(s => s.id === studentId);
+        const student = dataOfStudents.students.find(s => s.id === studentId);
         if (student) {
             student.courses = student.courses.filter(c => c.courseName !== courseName);
-            
-            save(COURSES_KEY, courses);
-            save(STUDENTS_KEY, students);
             return true;
         }
     }
@@ -86,23 +55,14 @@ export function deleteStudentFromCourse(studentId, courseName) {
 }
 
 export function deleteCourse(courseName) {
-    const courses = getCourses();
-    const students = getStudents();
-    
-    const affectedStudents = students.filter(student => 
-        student.courses.some(course => course.courseName === courseName)
-    );
-
-    affectedStudents.forEach(student => {
-        student.courses = student.courses.filter(course => 
-            course.courseName !== courseName
-        );
-    });
-
-    const updatedCourses = courses.filter(course => course.name !== courseName);
-
-    save(COURSES_KEY, updatedCourses);
-    save(STUDENTS_KEY, students);
-
-    return true;
+    const courseIndex = dataOfCourses.courses.findIndex(c => c.name === courseName);
+    if (courseIndex !== -1) {
+        dataOfCourses.courses.splice(courseIndex, 1);
+        
+        dataOfStudents.students.forEach(student => {
+            student.courses = student.courses.filter(c => c.courseName !== courseName);
+        });
+        return true;
+    }
+    return false;
 }

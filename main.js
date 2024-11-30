@@ -1,5 +1,3 @@
-import { initCourses } from "./utils/course.util.js";
-import { initStudents } from "./utils/student.util.js";
 import { showCourses } from "./public/views/courses.view.js";
 import { showStudents } from "./public/views/students.view.js";
 import { addCourse } from "./public/views/add-course.view.js";
@@ -9,8 +7,6 @@ import { deleteStudentFromCourseForm } from "./public/views/delete-student-from-
 import { showStudentSearchForm } from "./public/views/search-student.view.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    initCourses();
-    initStudents();
 
     document.getElementById('show-courses-btn').addEventListener('click', showCourses);
     document.getElementById('show-students-btn').addEventListener('click', showStudents);
