@@ -32,6 +32,9 @@ export function calculateGPA(letterGrade) {
     }
 }
 
+// Figures out a student's overall GPA across all their courses
+// If they're not taking any courses, can't calculate a GPA
+// The ',0' at the end of reduce() sets the initial value of 'sum' to 0.
 export function calculateTotalGPA(student) {
     const courses = student.courses;
 
@@ -39,13 +42,20 @@ export function calculateTotalGPA(student) {
         return "N/A";
     }
 
+    // Add up GPA points from each course
     const totalGPA = courses.reduce((sum, course) => {
+        // Find the course details to get its grading scale
         const courseInfo = dataOfCourses.courses.find(c => c.name === course.courseName);
+
+        // Calculate their grade step by step:
         const mean = computeMean(course.midtermScore, course.finalScore);
         const letterGrade = calculateGrade(mean, courseInfo?.gradingScale);
         const courseGPA = parseFloat(calculateGPA(letterGrade));
+
         return sum + courseGPA;
     }, 0);
 
+    // Get the average by dividing by number of courses
+    // Keep 2 decimal places (like 3.50)
     return (totalGPA / courses.length).toFixed(2);
 }

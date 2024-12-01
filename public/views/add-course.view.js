@@ -1,7 +1,10 @@
 import { getCourses, addNewCourse } from "../../utils/course.util.js";
 import { showCourses } from "./courses.view.js";
 
+// This function creates a form for adding new courses to our system
 export function addCourse() {
+    
+    // Create a simple form with fields for course name and grading scale
     document.getElementById('dynamic-content').innerHTML = `
         <h2>Add Course</h2>
         <form id="add-course-form">
@@ -18,26 +21,33 @@ export function addCourse() {
             <button class="form-btn" type="submit">Submit</button>
         </form>`;
 
+    // When user submit the form:
     document.getElementById('add-course-form').addEventListener('submit', (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Stop the form from actually submitting (we'll handle it ourselves)
+        
+        // Get the values they entered
         const courseName = document.getElementById('course-name').value.toUpperCase();
         const gradingScale = document.getElementById('grading-scale').value;
 
+        // Make sure they selected a grading scale
         if (!gradingScale) {
             alert('Please select a grading scale');
             return;
         }
 
+        // Check if this course already exists
         const courses = getCourses();
+        
         if (courses.some(course => course.name === courseName)) {
             alert(`Course "${courseName}" already exists!`);
             return;
         }
 
+        // Add the new course to our system
         addNewCourse({
             name: courseName,
             gradingScale: gradingScale,
-            students: []
+            students: []  // Start with no students enrolled
         });
 
         showCourses();

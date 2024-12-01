@@ -2,10 +2,12 @@ import { getCourses,addStudentToCourse } from "../../utils/course.util.js";
 import { getStudents } from "../../utils/student.util.js";
 import { showCourses } from "./courses.view.js";
 
+// Think of this as the "Course Registration" form
 export function addStudentToCourseForm() {
     const students = getStudents();
     const courses = getCourses();
 
+    // Create form with dropdowns for student/course and grade inputs
     document.getElementById('dynamic-content').innerHTML = `
         <h2>Add Student to Course</h2>
         <form id="add-student-to-course-form">
@@ -38,24 +40,32 @@ export function addStudentToCourseForm() {
             <button class="form-btn" type="submit">Add Student to Course</button>
         </form>`;
 
+    // When they try to enroll a student
     document.getElementById('add-student-to-course-form').addEventListener('submit', (e) => {
         e.preventDefault();
+       
+        // Get all their selections
         const studentId = document.getElementById('student-select').value;
         const courseName = document.getElementById('course-select').value;
         const midtermGrade = Number(document.getElementById('midterm-grade').value);
         const finalGrade = Number(document.getElementById('final-grade').value);
 
+        // Make sure grades are valid
         if (midtermGrade < 0 || midtermGrade > 100 || finalGrade < 0 || finalGrade > 100) {
             alert('Grades must be between 0 and 100');
+            
             return;
         }
 
+        // Check they aren't already in this course
         const course = courses.find(c => c.name === courseName);
         if (course.students.some(s => s.id === studentId)) {
             alert('Student is already enrolled in this course!');
+            
             return;
         }
 
+        // Try to enroll them
         const success = addStudentToCourse(studentId, courseName, midtermGrade, finalGrade);
 
         if (success) {
